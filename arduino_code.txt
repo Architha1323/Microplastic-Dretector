@@ -1,0 +1,42 @@
+// Simple Arduino code for Laser-based Microplastic Detector
+// Connect the photodiode/LDR output to analog pin A0
+
+const int sensorPin = A0;    // Analog pin for photodiode/LDR
+const int laserPin = 9;      // Digital pin to control laser (optional)
+
+int sensorValue = 0;
+float microplasticPercent = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(laserPin, OUTPUT);
+  digitalWrite(laserPin, HIGH); // Turn on laser
+}
+
+void loop() {
+  sensorValue = analogRead(sensorPin); // Read sensor value (0-1023)
+
+  // Simple calibration (adjust values for your setup)
+  // Assume: clean water ~900, very turbid ~300
+  float cleanWaterValue = 900.0;
+  float dirtyWaterValue = 300.0;
+
+  // Map sensor value to percentage of microplastics
+  microplasticPercent = map(sensorValue,
+                            cleanWaterValue,
+                            dirtyWaterValue,
+                            0, 100);
+
+  // Bound the value between 0–100%
+  if (microplasticPercent < 0) microplasticPercent = 0;
+  if (microplasticPercent > 100) microplasticPercent = 100;
+
+  // Print readings
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Estimated Microplastic %: ");
+  Serial.print(microplasticPercent);
+  Serial.println("%");
+
+  delay(1000); // 1-second delay between readings
+}
